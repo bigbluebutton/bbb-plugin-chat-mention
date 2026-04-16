@@ -5,8 +5,8 @@ const path = require('path');
 module.exports = {
   entry: './src/index.tsx',
   output: {
-    filename: 'ChatMentionPlugin.js',
-    library: 'ChatMentionPlugin',
+    filename: 'BbbPluginChatMention.js',
+    library: 'BbbPluginChatMention',
     libraryTarget: 'umd',
     publicPath: '/',
     globalObject: 'this',
