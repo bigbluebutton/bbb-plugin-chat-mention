@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom/client';
-import ChatMention from './chat-mention-plugin/component';
+import ChatMention from './bbb-plugin-chat-mention/component';
 
 const uuid = document.currentScript?.getAttribute('uuid') || 'root';
 
