@@ -1,7 +1,8 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { BbbPluginSdk, PluginApi } from 'bigbluebutton-html-plugin-sdk';
-import { ChatMentionProps } from './types';
+import { ChatMentionProps, MentionUser } from './types';
+import MentionPopup from './mention-popup';
 
 const REGEX = /@[^\n@]+/g;
 
@@ -70,7 +71,15 @@ function ChatMention({ pluginUuid: uuid }: ChatMentionProps): React.ReactElement
     });
   }, [chatMessagesDomElements, userListBasicInf]);
 
-  return null;
+  const mentionableUsers: MentionUser[] = userListBasicInf.data?.user.map((user) => ({
+    userId: user.userId,
+    name: user.name,
+    color: user.color,
+  })) ?? [];
+
+  return (
+    <MentionPopup pluginApi={pluginApi} users={mentionableUsers} />
+  );
 }
 
 export default ChatMention;
