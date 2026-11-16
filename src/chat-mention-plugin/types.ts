@@ -3,4 +3,10 @@ interface ChatMentionProps {
     pluginUuid: string,
 }
 
-export { ChatMentionProps };
+interface MentionUser {
+    userId: string,
+    name: string,
+    color: string,
+}
+
+export { ChatMentionProps, MentionUser };
