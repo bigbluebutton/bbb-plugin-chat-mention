@@ -5,8 +5,8 @@ const path = require('path');
 module.exports = {
   entry: './src/index.tsx',
   output: {
-    filename: 'ChatMentionPlugin.js',
-    library: 'ChatMentionPlugin',
+    filename: 'BbbPluginChatMention.js',
+    library: 'BbbPluginChatMention',
     libraryTarget: 'umd',
     publicPath: '/',
     globalObject: 'this',
@@ -17,7 +17,7 @@ module.exports = {
     host: '0.0.0.0',
     hot: false,
     liveReload: false,
-    onBeforeSetupMiddleware: (devServer) => {
+    setupMiddlewares: (middlewares, devServer) => {
       if (!devServer) {
         throw new Error('webpack-dev-server is not defined');
       }
@@ -26,6 +26,8 @@ module.exports = {
       devServer.app.get('/manifest.json', (req, res) => {
         res.sendFile(path.resolve(__dirname, 'manifest.json'));
       });
+
+      return middlewares;
     },
     client: {
       overlay: false,
