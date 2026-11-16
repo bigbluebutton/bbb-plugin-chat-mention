@@ -1,5 +1,5 @@
 {
-  "requiredSdkVersion": "^0.1.14 || ^1.0.0-beta.1",
+  "requiredSdkVersion": "^0.1.14 || ^1.0.0-beta.3",
   "name": "BbbPluginChatMention",
   "version": "0.1.0",
   "javascriptEntrypointUrl": "BbbPluginChatMention.js"
