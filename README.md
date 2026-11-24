@@ -8,6 +8,8 @@ The Chat Mention Plugin serves as a demonstration of how developers can create t
 
 ![Gif of plugin demo](./public/assets/ChatMention.gif)
 
+When another participant mentions you in a chat message (`@Your Name`), the plugin plays the BigBlueButton notification sound (`notify.mp3`, shipped with the client) on your selected speaker and shows a short toast with the sender and a preview of the message. Only messages sent after you joined trigger it, and your own messages never do.
+
 
 ## Running the Plugin
 

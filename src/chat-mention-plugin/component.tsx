@@ -1,8 +1,9 @@
 import * as React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { BbbPluginSdk, PluginApi } from 'bigbluebutton-html-plugin-sdk';
 import { ChatMentionProps, MentionUser } from './types';
 import MentionPopup from './mention-popup';
+import { useMentionNotification } from './mention-notification';
 
 const REGEX = /@[^\n@]+/g;
 
@@ -13,6 +14,12 @@ function ChatMention({ pluginUuid: uuid }: ChatMentionProps): React.ReactElement
   const [chatIdsToApplyHighlights, setChatIdsToApplyHighlights] = useState<string[]>([]);
   const response = pluginApi.useLoadedChatMessages();
   const userListBasicInf = pluginApi.useUsersBasicInfo();
+
+  const allUserNames = useMemo(
+    () => userListBasicInf.data?.user.map((user) => user.name) ?? [],
+    [userListBasicInf.data],
+  );
+  useMentionNotification(pluginApi, allUserNames);
 
   useEffect(() => {
     if (response.data && userListBasicInf.data) {
