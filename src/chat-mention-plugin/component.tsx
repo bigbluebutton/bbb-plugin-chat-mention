@@ -4,8 +4,9 @@ import { BbbPluginSdk, PluginApi } from 'bigbluebutton-html-plugin-sdk';
 import { ChatMentionProps, MentionUser } from './types';
 import MentionPopup from './mention-popup';
 import { useMentionNotification } from './mention-notification';
+import { findMentionedNames, highlightMentions } from './mentions';
 
-const REGEX = /@[^\n@]+/g;
+const MENTION_STYLE = 'color: #4185cf; background-color: #f2f6f8;';
 
 function ChatMention({ pluginUuid: uuid }: ChatMentionProps): React.ReactElement {
   BbbPluginSdk.initialize(uuid);
@@ -23,60 +24,26 @@ function ChatMention({ pluginUuid: uuid }: ChatMentionProps): React.ReactElement
 
   useEffect(() => {
     if (response.data && userListBasicInf.data) {
-      const userNames = userListBasicInf.data.user
-        .map((user) => user.name)
-        .sort((a, b) => b.length - a.length);
-
-      const idsToApply = response.data.filter((message) => {
-        const mentions = message.message.match(REGEX);
-
-        if (mentions) {
-          const mentionMatchesUser = mentions.some(
-            (mention) => userNames.some((name) => {
-              const userNameRegex = new RegExp(`@${name}\\b`, 'i');
-              return userNameRegex.test(mention.trim());
-            }),
-          );
-          return mentionMatchesUser;
-        }
-        return false;
-      }).map((message) => message.messageId);
+      const idsToApply = response.data
+        .filter((message) => findMentionedNames(message.message, allUserNames).length > 0)
+        .map((message) => message.messageId);
 
       setChatIdsToApplyHighlights(idsToApply);
     }
-  }, [response, userListBasicInf]);
+  }, [response, userListBasicInf, allUserNames]);
 
   const chatMessagesDomElements = pluginApi.useChatMessageDomElements(chatIdsToApplyHighlights);
 
   useEffect(() => {
-    chatMessagesDomElements?.forEach((domElement) => {
-      const chatMessageDomElement = domElement;
+    chatMessagesDomElements?.forEach((chatMessageDomElement) => {
       const { parentElement } = chatMessageDomElement;
 
       if (parentElement?.getAttribute('already-styled') === 'true') return;
 
       parentElement?.setAttribute('already-styled', 'true');
-
-      let updatedHtml = chatMessageDomElement.innerHTML;
-      const mentions = chatMessageDomElement.innerText.match(REGEX);
-
-      if (mentions) {
-        const style = 'color: #4185cf; background-color: #f2f6f8;';
-
-        mentions.forEach(() => {
-          userListBasicInf.data.user
-            .sort((a, b) => b.name.length - a.name.length)
-            .forEach((user) => {
-              const userNameRegex = new RegExp(`@${user.name}\\b`, 'gi');
-              const mentionText = `@${user.name}`;
-              updatedHtml = updatedHtml.replace(userNameRegex, `<span style="${style}">${mentionText}</span>`);
-            });
-        });
-
-        chatMessageDomElement.innerHTML = updatedHtml;
-      }
+      highlightMentions(chatMessageDomElement, allUserNames, MENTION_STYLE);
     });
-  }, [chatMessagesDomElements, userListBasicInf]);
+  }, [chatMessagesDomElements, allUserNames]);
 
   const mentionableUsers: MentionUser[] = userListBasicInf.data?.user.map((user) => ({
     userId: user.userId,
