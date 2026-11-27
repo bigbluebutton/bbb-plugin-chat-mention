@@ -25,7 +25,9 @@ function ChatMention({ pluginUuid: uuid }: ChatMentionProps): React.ReactElement
   useEffect(() => {
     if (response.data && userListBasicInf.data) {
       const idsToApply = response.data
-        .filter((message) => findMentionedNames(message.message, allUserNames).length > 0)
+        // The text of a deleted message is null.
+        .filter((message) => typeof message.message === 'string'
+          && findMentionedNames(message.message, allUserNames).length > 0)
         .map((message) => message.messageId);
 
       setChatIdsToApplyHighlights(idsToApply);
