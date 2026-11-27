@@ -29,6 +29,17 @@ function getMatches(users: MentionUser[], query: string): MentionUser[] {
     .slice(0, MAX_RESULTS);
 }
 
+// BBB 4.0.4 leaves CHAT_INPUT_IS_FOCUSED at false when the client focuses the
+// chat input itself (e.g. after the audio dialog closes). The focused element
+// is therefore checked as well: it is the chat input when it holds the same text.
+function getFocusedChatInput(text: string): HTMLElement | null {
+  const active = document.activeElement;
+  if (active instanceof HTMLTextAreaElement || active instanceof HTMLInputElement) {
+    return active.value === text ? active : null;
+  }
+  return null;
+}
+
 function MentionPopup({ pluginApi, users }: MentionPopupProps): React.ReactElement | null {
   // Reactive chat-input state coming from the BBB client.
   const inputText = pluginApi.useUiData!(
@@ -53,24 +64,36 @@ function MentionPopup({ pluginApi, users }: MentionPopupProps): React.ReactEleme
 
   useEffect(() => {
     const reposition = () => forceReposition((value) => value + 1);
+    // Focus events fire while the focus is still moving, so it is read afterwards.
+    let focusTimer: number | undefined;
+    const onFocusChange = () => {
+      window.clearTimeout(focusTimer);
+      focusTimer = window.setTimeout(reposition, 0);
+    };
     window.addEventListener('resize', reposition);
     window.addEventListener('scroll', reposition, true);
+    document.addEventListener('focusin', onFocusChange);
+    document.addEventListener('focusout', onFocusChange);
     return () => {
+      window.clearTimeout(focusTimer);
       window.removeEventListener('resize', reposition);
       window.removeEventListener('scroll', reposition, true);
+      document.removeEventListener('focusin', onFocusChange);
+      document.removeEventListener('focusout', onFocusChange);
     };
   }, []);
 
   const text = inputText.text ?? '';
+  const focusedInput = getFocusedChatInput(text);
   const match = text.match(MENTION_TYPING_REGEX);
   const query = match ? match[2] : null;
   const matches = query !== null ? getMatches(users, query) : [];
 
-  if (!inputFocus.value || query === null || matches.length === 0) {
+  if ((!inputFocus.value && !focusedInput) || query === null || matches.length === 0) {
     return null;
   }
 
-  const anchor = inputElementRef.current;
+  const anchor = focusedInput ?? inputElementRef.current;
   const rect = anchor?.getBoundingClientRect();
 
   const containerStyle: React.CSSProperties = {
