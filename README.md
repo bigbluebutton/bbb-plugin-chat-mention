@@ -4,7 +4,7 @@
 
 ## Description
 
-The Chat Mention Plugin serves as a demonstration of how developers can create their own custom plugins. This plugin basically implements the "mention" feature as you can see down below.
+The Chat Mention Plugin serves as a demonstration of how developers can create their own custom plugins. This plugin implements the "mention" feature as you can see down below: typing `@` in the chat input opens a list of the participants to pick from, and every `@Name` of a participant is highlighted in the chat.
 
 ![Gif of plugin demo](./public/assets/ChatMention.gif)
 
@@ -16,14 +16,14 @@ When another participant mentions you in a chat message (`@Your Name`), the plug
 1. Start the development server:
 
 ```bash
-cd $HOME/mconf-bigbluebutton-plugins/questions
+cd $HOME/bbb-plugin-chat-mention
 npm install
 npm start
 ```
 
 2.  Edit the plugin manifest and pass the url to it in the CREATE call(or add it to the permanent plugins manifest list in bigbluebutton.properties):
 ```
-pluginManifests=[{url:"https://MANIFEST_HOST/manifest.json", checksum="<sha256 of the file>"}]
+pluginManifests=[{"url":"https://MANIFEST_HOST/manifest.json","checksum":"<sha256 of the file>"}]
 ```
 
 <details>
@@ -32,9 +32,9 @@ pluginManifests=[{url:"https://MANIFEST_HOST/manifest.json", checksum="<sha256 o
   Something like this:
 
   ```nginx
-  #questions-plugins.nginx
-  location /plugins/ {
-    proxy_pass http://127.0.0.1:4701/static/;                 
+  #chat-mention-plugin.nginx
+  location /plugins/chat-mention/ {
+    proxy_pass http://127.0.0.1:4701/;
   }
   ```
 
